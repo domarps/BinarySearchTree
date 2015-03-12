@@ -102,33 +102,32 @@ boolean isPresent(struct node* root,int key)
 }
 
 //Helper function to find the number of nodes of a particular subTree
-int maxDepth(struct node* stree)
+//int maxDepth(struct node* stree,root)
+//{
+//  if(stree == root) return 0;
+//  else              
+//  {
+//     lDepth = maxDepth(stree->leftChild);
+//     rDepth = maxDepth(stree->rightChild);
+//     if(lDepth > rDepth) return (lDepth + 1);
+//     else                return (rDepth + 1);
+//  }
+//} 
+int depthQuery(struct node* temp_node,int key)
 {
-  if(stree == '\0') return 0;
-  else              
-  {
-     lDepth = maxDepth(stree->leftChild);
-     rDepth = maxDepth(stree->rightChild);
-     if(lDepth > rDepth) return (lDepth + 1);
-     else                return (rDepth + 1);
-  }
-} 
-int depthQuery(struct node* root,int key)
-{
-   struct node  *temp_node   = root;   
    while(temp_node != '\0')
    {
       if(temp_node->data == key)
       {
-            return maxDepth(temp_node);
+            return 0;
       }
       else if(key < temp_node->data && temp_node->leftChild != '\0')
       {
-            temp_node = temp_node->leftChild;
+            return (1 + depthQuery(temp_node->leftChild,key));
       }
       else if(key > temp_node->data && temp_node->rightChild != '\0')
       {
-            temp_node = temp_node->rightChild;
+            return(1 + depthQuery(temp_node->rightChild,key));
       }
       else
       {
@@ -222,7 +221,7 @@ struct node* minValue(struct node* node)
 }
 
 
-struct node* inOrderSuccessor(struct node* root,struct node *n)
+struct node* inOrderSuccessor(struct node *n)
 {
   if(n->rightChild != '\0') 
   {
@@ -247,98 +246,65 @@ struct node* inOrderSuccessor(struct node* root,struct node *n)
 }
 
 //The helper function will remove the node containing the Key(multiple instances possible), then it would replace that node with the Last Node
-struct node* Delete(struct node* root,int key,int size)
+struct node* Delete(struct node* temp_node,int key,int size)
 {
-    struct node  *temp_node   = root;
-
-    while(temp_node != '\0')
-    {
+     if(temp_node == '\0') return temp_node;
+  
       if(temp_node->data == key)
-      {
-        
-        //Find its inorder successor which is succ
-        struct node* succ = inOrderSuccessor(root,temp_node);
-        //printf(" C %d %d \n",succ->data,temp_node->data);
-       
-        if(succ == '\0') //What if there is no inorder successor
-        {
-          //No inorder successor
+      {	      
+       if(!(temp_node->leftChild != '\0' && temp_node->rightChild != '\0'))  //Node does not have two children,no inorder successor replacement required
+       {
+	      if(temp_node->leftChild == '\0' && temp_node->rightChild == '\0')   //Node has zero children
+	      {      	 
+           if(temp_node->parent->leftChild == temp_node)             temp_node->parent->leftChild = '\0'; //if Node is the leftChild  of parent   
+           else                                                      temp_node->parent->rightChild = '\0'; //if Node is the rightChild of parent
+	        free(temp_node);
+           return '\0';
+         }
+	      else if(temp_node->rightChild == '\0' && temp_node->leftChild != '\0') //Node has a leftChild
+	      {
+           struct node *sub = temp_node->leftChild;
+		     temp_node->leftChild->parent = temp_node->parent;
+		     temp_node->parent            = temp_node->leftChild->parent;
+		     free(temp_node);
+           return sub;
+         }
+	      else                                                                   //Node has a rightChild
+         {
+           struct node *sub = temp_node->rightChild;
+		     temp_node->rightChild->parent = temp_node->parent;
+		     temp_node->parent             = temp_node->rightChild->parent;
+		     free(temp_node);
+           return sub;
+	      }
+       }	 
+       else //Node has two children
+       {
+         //Find its inorder successor which is succ
+         struct node* succ = inOrderSuccessor(temp_node);
+         if(succ == '\0') //What if there is no inorder successor
+         {
+          //No inorder successor, but technically it should have
           if(temp_node->parent->leftChild == temp_node) temp_node->parent->leftChild = '\0';
           else                                          temp_node->parent->rightChild = '\0';
           free(temp_node);
           temp_node = '\0';
-          return root;
-        }
+         }
         else
         {
-          temp_node->data = succ->data;
-          //Let the successor be removed from the BST, four ways
+          temp_node->data = succ->data;   //replace the node's data with the inorder successor's data
+          //Let the successor be removed from the BST, it can fall in one of the four categories
           //But first find if succ is the left or Right Child of its parent
           //*****************************************************************//
-          int flagLR;
-          if(succ->parent->leftChild == succ) flagLR = 0; //0 for LEFT CHILD
-          else                                flagLR = 1; //1 for RIGHT CHILD
-          //*****************************************************************//
-          
-          //Case 1 : succ is an External Node
-          if(isExternal(succ) && succ->parent != '\0') 
-          {
-                       if(succ->parent->leftChild == succ) succ->parent->leftChild = '\0';
-                       else                                succ->parent->rightChild = '\0';
-                       free(succ);
-          }  
-          //Case 2 : succ is an Internal Node with two children
-          else if((hasBothChild(succ) == 1))
-          {
-              succ->parent->leftChild  = succ->leftChild;
-              succ->parent->rightChild = succ->rightChild;  
-              succ->leftChild->parent  = succ->parent;
-              succ->rightChild->parent = succ->parent;
-          } 
-          //Case 3 : succ is the leftChild of the parent
-          else if(succ->leftChild != '\0' )
-          {
-            succ->leftChild->parent  = succ->parent;
-            if(flagLR == 0)
-            {
-                    succ->parent->leftChild  = succ->leftChild;
-            }
-            else
-            {
-                    succ->parent->rightChild = succ->leftChild;
-            }
-          }
-         //Case 4 : succ is the rightChild of the parent
-          else
-          {
-           succ->rightChild->parent  = succ->parent;
-           if(flagLR == 0)
-            {
-                    succ->parent->rightChild  = succ->rightChild;
-            }
-            else
-            {
-                         succ->parent->rightChild = succ->rightChild;
-            }
-          }
+          temp_node->rightChild = Delete(temp_node->rightChild,succ->data,size);
         } 
-        return root;       
+       } 
       } 
-      else if(key < temp_node->data && temp_node->leftChild != '\0')
-      {
-       //     printf("Fuck Up \n"); 
-            temp_node = temp_node->leftChild;
-      }
-      else if(key > temp_node->data && temp_node->rightChild != '\0')
-      {
-            temp_node = temp_node->rightChild;
-      }
-      else
-      {
-            return '\0';  
-      }      
+      else if(key < temp_node->data)    temp_node->leftChild  = Delete(temp_node->leftChild,key,size);
+      else                              temp_node->rightChild = Delete(temp_node->rightChild,key,size);
+      return temp_node;
    }
-}    
+    
    
 int main()
 {
