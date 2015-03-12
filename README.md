@@ -1,9 +1,14 @@
 # BinarySearchTree
-Construct and maintain a Binary Search Tree
-** Insert: Insert a given key into the BST such that the tree remains a BST. That is, the node has to be inserted at the appropriate position so that a binary search can be done during lookup of a key. If the input key is already present in the tree, it must print the postorder sequence of the existing tree.
-** Remove: Remove a given key from the tree. In case of a node having both children replace it with inorder successor.
-** Query: The program has to return the depth of a node, given root is at depth 0.
-** Size: Given a key, your program has to return the number of nodes in the subtree rooted at the key value.  
+
+Construct and maintain a Binary Search Tree  
+
+** *Insert*: Insert a given key into the BST such that the tree remains a BST. That is, the node has to be inserted at the appropriate position so that a binary search can be done during lookup of a key. If the input key is already present in the tree, it must print the postorder sequence of the existing tree.
+
+** *Remove*: Remove a given key from the tree. In case of a node having both children replace it with inorder successor.
+
+** *Query*: The program has to return the depth of a node, given root is at depth 0.
+
+** *Size*: Given a key, your program has to return the number of nodes in the subtree rooted at the key value.  
 
 Input:
 
