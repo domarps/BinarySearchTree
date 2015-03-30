@@ -101,18 +101,6 @@ boolean isPresent(struct node* root,int key)
   }
 }
 
-//Helper function to find the number of nodes of a particular subTree
-//int maxDepth(struct node* stree,root)
-//{
-//  if(stree == root) return 0;
-//  else              
-//  {
-//     lDepth = maxDepth(stree->leftChild);
-//     rDepth = maxDepth(stree->rightChild);
-//     if(lDepth > rDepth) return (lDepth + 1);
-//     else                return (rDepth + 1);
-//  }
-//} 
 int depthQuery(struct node* temp_node,int key)
 {
    while(temp_node != '\0')
